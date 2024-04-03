@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Repositories\UserRepository;
 use App\Http\Requests\Student\StudentStoreRequest;
 use App\Http\Requests\Student\StudentUpdateRequest;
 
@@ -20,7 +21,9 @@ class StudentController extends Controller
     {
         try {
             $data = [];
-            $data['student'] = User::where('role', 'admin')->get();
+            $dataRepo = new UserRepository();
+            $user = $dataRepo->indexStudent();
+            $data['student'] = UserResource::collection($user);
             return response()->json([
                 'data' => $data,
                 'message' => 'Berhasil membuat seluruh data akun murid'
@@ -38,17 +41,10 @@ class StudentController extends Controller
     {
         DB::beginTransaction();
         try {
+            $dataRepo = new UserRepository();
             $role = 'student';
-            $user = User::create([
-                'name' => $request->name,
-                'role' => $role,
-                'username' => $request->username,
-                'nisn' => $request->nisn,
-                'email' => $request->em♣ail,
-                'password' => Hash::make($request->password)
-            ]);
+            $user = $dataRepo->createUser($request, $role);
             DB::commit();
-
             $data['user'] = new UserResource($user);
             return response()->json([
                 'data' => $data,
@@ -62,8 +58,6 @@ class StudentController extends Controller
             ], 500));
         }
     }
-
-
 
 
 
@@ -87,9 +81,10 @@ class StudentController extends Controller
     {
         DB::beginTransaction();
         try {
-            $user->delete();
-            DB::commit();
+            $userRepo = new UserRepository();
+            $userData = $userRepo->deleteUser($user);
 
+            DB::commit();
             return response()->json([
                 'message' => 'Berhasil menghapus akun murid'
             ], 202);
@@ -106,17 +101,11 @@ class StudentController extends Controller
     {
         DB::beginTransaction();
         try {
-            $user->name = $request->name;
-            $user->nisn = $request->nisn;
-            $user->email = $request->email;
-
-
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-            }
-            $user->save();
-
+            $data = [];
+            $userRepo = new UserRepository();
+            $userData = $userRepo->deleteUser($user);
             DB::commit();
+            $data['user'] = new UserResource($user);
             return response()->json([
                 'message' => 'Berhasil mengupdate akun murid'
             ], 202);

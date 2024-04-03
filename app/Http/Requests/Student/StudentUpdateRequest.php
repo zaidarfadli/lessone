@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Student;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StudentUpdateRequest extends FormRequest
 {
@@ -23,9 +25,17 @@ class StudentUpdateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'nisn' => 'required|string|max:255|unique:users,nisn,' . $this->user->id,
-            'email' => 'required|string|email|max:255|unique:users,email,' . $this->user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'username' => 'required|string|max:255|unique:users,username',
+            'nisn' => 'required|string|max:255|unique:users,nisn',
+            'email' => 'required|string|email|max:255|unique:users,email',
+
         ];
+    }
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => 'Validasi gagal',
+            'errors' => $validator->errors()
+        ], 422));
     }
 }
