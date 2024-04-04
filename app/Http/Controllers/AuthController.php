@@ -42,7 +42,7 @@ class AuthController extends Controller
             if ($user) {
                 $user->tokens()->delete(); // Revoke all tokens belonging to the user
             }
-            return ApiResponse::success(new stdClass, "Berhasil login", 202);
+            return ApiResponse::success(new stdClass, "Berhasil logout", 202);
         } catch (\Exception $e) {
             return ApiResponse::error($e, "Terjadi error server gagal logout", 500);
         }
