@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\HelperResponses\ApiResponse;
 use App\Http\Controllers\Controller;
+
 use App\Http\Repositories\UserRepository;
 use App\Http\Requests\Student\StudentStoreRequest;
 use App\Http\Requests\Student\StudentUpdateRequest;
@@ -13,6 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use stdClass;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class StudentController extends Controller
@@ -24,15 +27,10 @@ class StudentController extends Controller
             $dataRepo = new UserRepository();
             $user = $dataRepo->indexStudent();
             $data['student'] = UserResource::collection($user);
-            return response()->json([
-                'data' => $data,
-                'message' => 'Berhasil membuat seluruh data akun murid'
-            ], 202);
+            return ApiResponse::success($data, "Berhasil mengambil seluruh data akun murid", 202);
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new HttpResponseException(response()->json([
-                'message' => 'Gagal mengambil list akun murid'
-            ], 500));
+            return  ApiResponse::error($e, "Gagal mengambil list akun murid", 500);
         }
     }
 
@@ -46,16 +44,10 @@ class StudentController extends Controller
             $user = $dataRepo->createUser($request, $role);
             DB::commit();
             $data['user'] = new UserResource($user);
-            return response()->json([
-                'data' => $data,
-                'message' => 'Berhasil membuat akun murid'
-            ], 202);
+            return  ApiResponse::success($data, "Berhasil membuat user murid", 202);
         } catch (\Exception $e) {
-
             DB::rollBack();
-            throw new HttpResponseException(response()->json([
-                'message' => 'Gagal membuat akun murid'
-            ], 500));
+            return  ApiResponse::error($e, "Gagal membuat user murid", 500);
         }
     }
 
@@ -66,14 +58,10 @@ class StudentController extends Controller
 
         try {
             $data['user'] = new UserResource($user);
-            return response()->json([
-                'data' => $data,
-                'message' => 'Berhasil Menampilkan user ' . $user->id
-            ]);
+            $message = "Berhasil menampilkan user dengan id" . $user->id;
+            return ApiResponse::success($data, $message, 202);
         } catch (\Exception $e) {
-            throw new HttpResponseException(response()->json([
-                'message' => 'Gagal mengambil user dengan id tersebut'
-            ], 500));
+            return ApiResponse::error($e, "Gagal menampilkan user murid", 500);
         }
     }
 
@@ -85,14 +73,10 @@ class StudentController extends Controller
             $userData = $userRepo->deleteUser($user);
 
             DB::commit();
-            return response()->json([
-                'message' => 'Berhasil menghapus akun murid'
-            ], 202);
+            return  ApiResponse::success(new stdClass, "Berhasil menghapus user murid", 202);
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new HttpResponseException(response()->json([
-                'message' => 'Gagal menghapus akun murid'
-            ], 500));
+            return ApiResponse::error($e, "Gagal menghapus user murid", 500);
         }
     }
 
@@ -103,17 +87,13 @@ class StudentController extends Controller
         try {
             $data = [];
             $userRepo = new UserRepository();
-            $userData = $userRepo->deleteUser($user);
+            $userData = $userRepo->updateUser($request, $user);
             DB::commit();
             $data['user'] = new UserResource($user);
-            return response()->json([
-                'message' => 'Berhasil mengupdate akun murid'
-            ], 202);
+            return ApiResponse::success($data, "Berhasil mengupdate user murid", 202);
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new HttpResponseException(response()->json([
-                'message' => 'Gagal mengupdate akun murid'
-            ], 500));
+            return  ApiResponse::error($e, "Gagal mengupdate user murid", 500);
         }
     }
 }

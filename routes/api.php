@@ -38,7 +38,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 
-
+Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
 // INI bisa diakses jika user sudah login saja,dan rolenya admin
 Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum', 'role:admin']], function () {
@@ -50,4 +52,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum', 'role:admin'
         Route::delete('/{user}', [StudentController::class, 'delete']);
         Route::put('/{user}', [StudentController::class, 'update']);
     });
+
+
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
