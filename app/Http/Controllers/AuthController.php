@@ -9,13 +9,12 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use stdClass;
 
 class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
-
-
         try {
             $credentials = $request->only('email', 'password');
 
@@ -27,13 +26,14 @@ class AuthController extends Controller
                     'token' => $token,
                     'message' => 'Login Berhasil'
                 ];
-                ApiResponse::success($data, "Berhasil login", 202);
+                return ApiResponse::success($data, "Berhasil login", 202);
             }
             return response()->json(['message' => 'Email atau password salah.'], 401);
         } catch (\Exception $e) {
             return ApiResponse::error($e, "Terjadi error server", 500);
         }
     }
+
 
     public function logout(Request $request)
     {
@@ -42,12 +42,9 @@ class AuthController extends Controller
             if ($user) {
                 $user->tokens()->delete(); // Revoke all tokens belonging to the user
             }
-            return response()->json(['message' => 'Berhasil logout'], 200);
+            return ApiResponse::success(new stdClass, "Berhasil login", 202);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Gagal logout',
-                'info' => $e->getMessage()
-            ], 500);
+            return ApiResponse::error($e, "Terjadi error server gagal logout", 500);
         }
     }
 }
