@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Student;
+namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StudentUpdateRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,12 @@ class StudentUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username',
-            'nisn' => 'required|string|max:255|unique:users,nisn',
-            'email' => 'required|string|email|max:255|unique:users,email',
-
+            'email' => 'required|string|email|max:255|unique:users,email,' . $this->user->id,
+            'role' => 'required|in:admin,student,teacher',
+            'nisn' => 'required_if:role,student|unique:users,nisn,' . $this->user->id,
         ];
     }
     protected function failedValidation(Validator $validator)

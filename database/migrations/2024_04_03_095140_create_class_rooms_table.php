@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('class_rooms', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('class_level');
+            $table->string('subject');
+            $table->string('unique_code')->unique();
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('teacher_id');
+            $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

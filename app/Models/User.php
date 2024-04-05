@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'nisn',
         'nip',
+        'role',
         'username'
     ];
 
@@ -60,5 +61,15 @@ class User extends Authenticatable
     public function isTeacher()
     {
         return $this->role === 'teacher';
+    }
+
+    public function classRoomsTeacher()
+    {
+        return $this->hasMany(ClassRoom::class, "teacher_id");
+    }
+
+    public function classRoomsStudent()
+    {
+        return $this->belongsToMany(ClassRoom::class, 'student_classrooms', 'student_id', 'class_room_id');
     }
 }

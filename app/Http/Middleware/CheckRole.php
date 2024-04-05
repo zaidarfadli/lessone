@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\HelperResponses\ApiResponse;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,14 +18,13 @@ class CheckRole
     public function handle(Request $request, Closure $next, $role)
     {
         if (!Auth::check()) {
-            return redirect('/login')->with([
-                'message' => 'anda belum login'
-            ]);
+            return ApiResponse::errorWithStatus(null, 'Anda belum login', 401);
         }
+
         $user = Auth::user();
 
         if ($user->role != $role) {
-            return redirect('/')->with('error', 'Unauthorized.');
+            return ApiResponse::errorWithStatus(null, 'Unauthorized.', 403);
         }
 
         return $next($request);
